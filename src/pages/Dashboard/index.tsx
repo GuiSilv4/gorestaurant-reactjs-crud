@@ -9,6 +9,7 @@ import ModalAddFood from '../../components/ModalAddFood';
 import ModalEditFood from '../../components/ModalEditFood';
 
 import { FoodsContainer } from './styles';
+import ModalAddConfirmation from '../../components/ModalAddConfirmation';
 
 interface IFoodPlate {
   id: number;
@@ -23,6 +24,7 @@ const Dashboard: React.FC = () => {
   const [foods, setFoods] = useState<IFoodPlate[]>([]);
   const [editingFood, setEditingFood] = useState<IFoodPlate>({} as IFoodPlate);
   const [modalOpen, setModalOpen] = useState(false);
+  const [confirmationModalOpen, setConfirmationModalOpen] = useState(false);
   const [editModalOpen, setEditModalOpen] = useState(false);
 
   useEffect(() => {
@@ -48,6 +50,7 @@ const Dashboard: React.FC = () => {
       const response = await api.post('foods', foodData);
       const newFoods = [...foods, response.data];
       setFoods(newFoods);
+      setConfirmationModalOpen(true);
     } catch (err) {
       console.log(err);
     }
@@ -87,6 +90,10 @@ const Dashboard: React.FC = () => {
     setEditModalOpen(!editModalOpen);
   }
 
+  function toggleAddConfirmationModal(): void {
+    setConfirmationModalOpen(!confirmationModalOpen);
+  }
+
   function handleEditFood(food: IFoodPlate): void {
     setEditingFood(food);
     toggleEditModal();
@@ -94,20 +101,22 @@ const Dashboard: React.FC = () => {
 
   return (
     <>
+      <ModalAddConfirmation
+        isOpen={confirmationModalOpen}
+        setIsOpen={toggleAddConfirmationModal}
+      />
       <Header openModal={toggleModal} />
       <ModalAddFood
         isOpen={modalOpen}
         setIsOpen={toggleModal}
         handleAddFood={handleAddFood}
       />
-
       <ModalEditFood
         isOpen={editModalOpen}
         setIsOpen={toggleEditModal}
         editingFood={editingFood}
         handleUpdateFood={handleUpdateFood}
       />
-
       <FoodsContainer data-testid="foods-list">
         {foods &&
           foods.map(food => (
